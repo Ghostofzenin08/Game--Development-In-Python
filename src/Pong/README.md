@@ -58,7 +58,7 @@ The paddles are positioned near the left and right edges of the screen, while th
 ├── requirements.txt
 └── src/
     └── pong/
-        └── pong.py
+        └── Solution_main.py
 ```
 
 ### `src/pong/pong.py`
@@ -149,7 +149,7 @@ pip install -r requirements.txt
 From the project root directory, run:
 
 ```bash
-python src/pong/pong.py
+python src/pong/Solution_main.py
 ```
 
 The Pong window should open and the game will start immediately.
