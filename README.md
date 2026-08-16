@@ -22,7 +22,6 @@ The projects in this repository explore concepts such as:
 * Game loops and event handling
 * Player movement and controls
 * Collision detection
-* Enemy AI and behavior
 * Score and health systems
 * Levels and progression
 * Procedural generation
