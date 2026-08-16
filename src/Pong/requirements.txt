@@ -1,0 +1,3 @@
+'''requirements for this project'''
+
+pygame>=2.5.0
