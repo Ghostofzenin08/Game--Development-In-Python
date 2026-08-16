@@ -1,6 +1,5 @@
-from Solution_main import *
-import pygame
+from Solution_main import main
 
-class Game:
-    def __init__(self):
-        pygame.display_surface = pygame.display.set_mode(())
+
+if __name__ == "__main__":
+    main()
