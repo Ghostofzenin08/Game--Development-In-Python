@@ -1,0 +1,2 @@
+''' Requirements for Galaxy_Shooters project'''
+pygame==2.6.1
