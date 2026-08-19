@@ -1,14 +1,17 @@
 import pygame
 import os
 import random
+import time
+pygame.init()
+pygame.font.init()
+
 
 ASSET_DIR = os.path.join(os.path.dirname(__file__), 'assets', 'images')
 
 
-
 WIDTH, HEIGHT = 900, 500
-WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 
+WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Galaxy Shooters")
 
 WHITE = (255, 255, 255)
