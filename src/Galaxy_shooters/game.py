@@ -42,6 +42,8 @@ HEALTH_BAR_HEIGHT = 18
 POWERUP_SIZE = 28
 POWERUP_SPAWN_MS = 7000
 POWERUP_DURATION_MS = 6500
+AI_VEL = 4
+AI_FIRE_INTERVAL_MS = 420
 
 POWERUPS = {
     "rapid": {"label": "RAPID", "icon": "⚡", "color": (90, 220, 255)},
@@ -279,6 +281,28 @@ def red_handle_movement(keys_pressed, red, speed):
         red.y += speed
 
 
+def red_ai_movement(red, yellow, yellow_bullets, powerups, effects):
+    """A lightweight opponent that pursues the player, avoids incoming fire, and collects pickups."""
+    target_y = yellow.centery
+    # Dodge the closest yellow laser that is travelling toward the AI ship.
+    threats = [bullet for bullet in yellow_bullets if bullet["rect"].x < red.left]
+    if threats:
+        threat = max(threats, key=lambda bullet: bullet["rect"].x)
+        if abs(threat["rect"].centery - red.centery) < 75:
+            target_y = 70 if threat["rect"].centery > red.centery else HEIGHT - 70
+    else:
+        # Pick up a nearby power-up when it is safely on the AI's side.
+        ai_pickups = [pickup for pickup in powerups if pickup["rect"].centerx > BORDER.right]
+        if ai_pickups:
+            target_y = min(ai_pickups, key=lambda pickup: abs(pickup["rect"].centery - red.centery))["rect"].centery
+
+    speed = AI_VEL + 2 if effect_active(effects, "red", "speed") else AI_VEL
+    if red.centery < target_y - 10 and red.bottom + speed < HEIGHT - 15:
+        red.y += speed
+    elif red.centery > target_y + 10 and red.top - speed > 0:
+        red.y -= speed
+
+
 def fire_laser(player, ship, bullets, flashes, effects, last_shot):
     """Fire one laser, or a spaced pair while Double Shot is active."""
     now = pygame.time.get_ticks()
@@ -322,19 +346,23 @@ def handle_bullets(yellow_bullets, red_bullets, yellow, red, explosions):
             red_bullets.remove(bullet)
 
 
-def draw_menu():
+def draw_menu(game_mode):
     WIN.blit(SPACE, (0, 0))
     title_text = TITLE_FONT.render("GALAXY SHOOTERS", True, WHITE)
-    subtitle_text = MENU_FONT.render("2 PLAYER SPACE BATTLE", True, WHITE)
-    start_text = MENU_FONT.render("[ START GAME ]", True, WHITE)
-    controls_text = MENU_FONT.render("[ CONTROLS ]", True, WHITE)
-    quit_text = MENU_FONT.render("[ QUIT ]", True, WHITE)
+    subtitle_text = MENU_FONT.render("SPACE BATTLE", True, WHITE)
+    ai_text = MENU_FONT.render("1  PLAYER VS AI", True, YELLOW if game_mode == "ai" else WHITE)
+    two_player_text = MENU_FONT.render("2  TWO PLAYERS", True, YELLOW if game_mode == "two" else WHITE)
+    start_text = HEALTH_SMALL_FONT.render("Press ENTER or SPACE to start", True, WHITE)
+    controls_text = HEALTH_SMALL_FONT.render("Player: W A S D + Left Ctrl    Player 2: Arrow keys + Right Ctrl", True, WHITE)
+    quit_text = HEALTH_SMALL_FONT.render("ESC to quit", True, WHITE)
 
     WIN.blit(title_text, (WIDTH // 2 - title_text.get_width() // 2, 70))
     WIN.blit(subtitle_text, (WIDTH // 2 - subtitle_text.get_width() // 2, 145))
-    WIN.blit(start_text, (WIDTH // 2 - start_text.get_width() // 2, 245))
-    WIN.blit(controls_text, (WIDTH // 2 - controls_text.get_width() // 2, 300))
-    WIN.blit(quit_text, (WIDTH // 2 - quit_text.get_width() // 2, 355))
+    WIN.blit(ai_text, (WIDTH // 2 - ai_text.get_width() // 2, 225))
+    WIN.blit(two_player_text, (WIDTH // 2 - two_player_text.get_width() // 2, 270))
+    WIN.blit(start_text, (WIDTH // 2 - start_text.get_width() // 2, 335))
+    WIN.blit(controls_text, (WIDTH // 2 - controls_text.get_width() // 2, 380))
+    WIN.blit(quit_text, (WIDTH // 2 - quit_text.get_width() // 2, 415))
     pygame.display.update()
 
 
@@ -374,12 +402,14 @@ def main():
     clock = pygame.time.Clock()
     run = True
     game_started = False
+    game_mode = "ai"
     winner_text = ""
     hit_player = None
     hit_feedback_until = 0
     yellow, red, yellow_bullets, red_bullets, red_health, yellow_health, flashes, explosions, powerups, effects = new_game()
     last_shot = {"yellow": -1000, "red": -1000}
     next_powerup_spawn = pygame.time.get_ticks() + POWERUP_SPAWN_MS
+    next_ai_shot = pygame.time.get_ticks()
 
     while run:
         clock.tick(FPS)
@@ -393,6 +423,7 @@ def main():
                     yellow, red, yellow_bullets, red_bullets, red_health, yellow_health, flashes, explosions, powerups, effects = new_game()
                     last_shot = {"yellow": -1000, "red": -1000}
                     next_powerup_spawn = pygame.time.get_ticks() + POWERUP_SPAWN_MS
+                    next_ai_shot = pygame.time.get_ticks()
                     winner_text = ""
                     hit_player = None
                     hit_feedback_until = 0
@@ -401,7 +432,11 @@ def main():
                     run = False
 
             if event.type == pygame.KEYDOWN and not game_started and not winner_text:
-                if event.key in (pygame.K_RETURN, pygame.K_SPACE):
+                if event.key == pygame.K_1:
+                    game_mode = "ai"
+                elif event.key == pygame.K_2:
+                    game_mode = "two"
+                elif event.key in (pygame.K_RETURN, pygame.K_SPACE):
                     game_started = True
                 elif event.key == pygame.K_ESCAPE:
                     run = False
@@ -410,7 +445,7 @@ def main():
                 if event.key == pygame.K_LCTRL and len(yellow_bullets) < MAX_BULLETS:
                     fire_laser("yellow", yellow, yellow_bullets, flashes, effects, last_shot)
 
-                if event.key == pygame.K_RCTRL and len(red_bullets) < MAX_BULLETS:
+                if game_mode == "two" and event.key == pygame.K_RCTRL and len(red_bullets) < MAX_BULLETS:
                     fire_laser("red", red, red_bullets, flashes, effects, last_shot)
 
             if event.type == RED_HIT and game_started and not winner_text:
@@ -428,15 +463,15 @@ def main():
                 HIT_SOUND.play()
 
         if not game_started:
-            draw_winner(winner_text) if winner_text else draw_menu()
+            draw_winner(winner_text) if winner_text else draw_menu(game_mode)
             continue
 
         if not winner_text and red_health <= 0:
-            winner_text = "Yellow wins!"
+            winner_text = "You win!" if game_mode == "ai" else "Yellow wins!"
             pygame.mixer.music.fadeout(250)
             victory_channel.play(VICTORY_SOUND)
         elif not winner_text and yellow_health <= 0:
-            winner_text = "Red wins!"
+            winner_text = "Computer wins!" if game_mode == "ai" else "Red wins!"
             pygame.mixer.music.fadeout(250)
             victory_channel.play(VICTORY_SOUND)
 
@@ -447,13 +482,19 @@ def main():
         keys_pressed = pygame.key.get_pressed()
         yellow_handle_movement(keys_pressed, yellow,
                                VEL + 3 if effect_active(effects, "yellow", "speed") else VEL)
-        red_handle_movement(keys_pressed, red,
-                            VEL + 3 if effect_active(effects, "red", "speed") else VEL)
+        if game_mode == "ai":
+            red_ai_movement(red, yellow, yellow_bullets, powerups, effects)
+            if pygame.time.get_ticks() >= next_ai_shot:
+                fire_laser("red", red, red_bullets, flashes, effects, last_shot)
+                next_ai_shot = pygame.time.get_ticks() + AI_FIRE_INTERVAL_MS
+        else:
+            red_handle_movement(keys_pressed, red,
+                                VEL + 3 if effect_active(effects, "red", "speed") else VEL)
 
         # Rapid Fire works while the player holds their existing fire key.
         if effect_active(effects, "yellow", "rapid") and keys_pressed[pygame.K_LCTRL]:
             fire_laser("yellow", yellow, yellow_bullets, flashes, effects, last_shot)
-        if effect_active(effects, "red", "rapid") and keys_pressed[pygame.K_RCTRL]:
+        if game_mode == "two" and effect_active(effects, "red", "rapid") and keys_pressed[pygame.K_RCTRL]:
             fire_laser("red", red, red_bullets, flashes, effects, last_shot)
 
         if pygame.time.get_ticks() >= next_powerup_spawn:
