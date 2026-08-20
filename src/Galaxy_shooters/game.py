@@ -1,5 +1,6 @@
 import pygame
 import os
+import random
 
 
 pygame.init()
@@ -21,6 +22,7 @@ HEALTH_FONT = pygame.font.SysFont('comicsans', 30)
 HEALTH_SMALL_FONT = pygame.font.SysFont('comicsans', 20)
 TITLE_FONT = pygame.font.SysFont('comicsans', 52)
 MENU_FONT = pygame.font.SysFont('comicsans', 32)
+POWERUP_FONT = pygame.font.SysFont('arial', 17, bold=True)
 
 BORDER = pygame.Rect(WIDTH//2 - 5, 0, 10, HEIGHT)
 
@@ -37,6 +39,17 @@ MAX_BULLETS = 3
 MAX_HEALTH = 10
 HEALTH_BAR_WIDTH = 220
 HEALTH_BAR_HEIGHT = 18
+POWERUP_SIZE = 28
+POWERUP_SPAWN_MS = 7000
+POWERUP_DURATION_MS = 6500
+
+POWERUPS = {
+    "rapid": {"label": "RAPID", "icon": "⚡", "color": (90, 220, 255)},
+    "shield": {"label": "SHIELD", "icon": "S", "color": (100, 160, 255)},
+    "health": {"label": "+HEALTH", "icon": "+", "color": (90, 230, 120)},
+    "double": {"label": "DOUBLE", "icon": "2X", "color": (255, 145, 235)},
+    "speed": {"label": "SPEED", "icon": "»", "color": (255, 180, 55)},
+}
 
 
 SPACESHIP_WIDTH, SPACESHIP_HEIGHT = 55, 40
@@ -87,6 +100,54 @@ def spawn_muzzle_flash(flashes, ship, color, direction):
 def spawn_explosion(explosions, center, color):
     explosions.append({"center": center, "color": color,
                        "created": pygame.time.get_ticks()})
+
+
+def spawn_powerup(powerups):
+    """Place a pickup on either player's side, away from the centre barrier."""
+    kind = random.choice(list(POWERUPS))
+    side_x = random.choice((random.randint(55, BORDER.left - 55),
+                            random.randint(BORDER.right + 25, WIDTH - 55)))
+    powerups.append({"kind": kind,
+                     "rect": pygame.Rect(side_x, random.randint(85, HEIGHT - 65),
+                                         POWERUP_SIZE, POWERUP_SIZE),
+                     "created": pygame.time.get_ticks()})
+
+
+def activate_powerup(kind, player, health, effects):
+    now = pygame.time.get_ticks()
+    if kind == "health":
+        health = min(MAX_HEALTH, health + 3)
+    else:
+        effects[player][kind] = now + POWERUP_DURATION_MS
+    return health
+
+
+def effect_active(effects, player, kind):
+    return effects[player].get(kind, 0) > pygame.time.get_ticks()
+
+
+def draw_powerups(powerups, effects):
+    now = pygame.time.get_ticks()
+    for pickup in powerups[:]:
+        if now - pickup["created"] > 10000:
+            powerups.remove(pickup)
+            continue
+        info = POWERUPS[pickup["kind"]]
+        rect = pickup["rect"]
+        pulse = int(3 * abs((now % 500) / 250 - 1))
+        pygame.draw.circle(WIN, (*info["color"], 80), rect.center, rect.width // 2 + 5 + pulse)
+        pygame.draw.circle(WIN, info["color"], rect.center, rect.width // 2)
+        pygame.draw.circle(WIN, WHITE, rect.center, rect.width // 2, 2)
+        icon = POWERUP_FONT.render(info["icon"], True, BLACK)
+        WIN.blit(icon, icon.get_rect(center=rect.center))
+
+    for player, x, align_right in (("yellow", 10, False), ("red", WIDTH - 10, True)):
+        active = [POWERUPS[kind]["label"] for kind in ("rapid", "shield", "double", "speed")
+                  if effect_active(effects, player, kind)]
+        if active:
+            text = POWERUP_FONT.render(" | ".join(active), True, WHITE)
+            text_x = x - text.get_width() if align_right else x
+            WIN.blit(text, (text_x, 54))
 
 
 def draw_health_bar(x, y, health, color, align_right=False):
@@ -168,15 +229,21 @@ def draw_effects(bullets, flashes, explosions):
 
 def draw_window(yellow, red, red_bullets, yellow_bullets, red_health,
                 yellow_health, hit_player, hit_feedback_until, flashes,
-                explosions):
+                explosions, powerups, effects):
     WIN.fill(WHITE)
     WIN.blit(SPACE, (0, 0))
     pygame.draw.rect(WIN, BLACK, BORDER)
     draw_health_bar(10, 28, yellow_health, YELLOW)
     draw_health_bar(WIDTH - 10, 28, red_health, RED, align_right=True)
+    draw_powerups(powerups, effects)
 
     WIN.blit(YELLOW_SPACESHIP_IMAGE, (yellow.x, yellow.y))
     WIN.blit(RED_SPACESHIP_IMAGE, (red.x, red.y))
+
+    # A shield is always visible, so players can tell why a hit did no damage.
+    for ship, player, color in ((yellow, "yellow", YELLOW), (red, "red", RED)):
+        if effect_active(effects, player, "shield"):
+            pygame.draw.ellipse(WIN, (110, 185, 255), ship.inflate(18, 18), 2)
 
     if pygame.time.get_ticks() < hit_feedback_until:
         hit_ship = red if hit_player == "red" else yellow
@@ -190,27 +257,49 @@ def draw_window(yellow, red, red_bullets, yellow_bullets, red_health,
     pygame.display.update()
 
 
-def yellow_handle_movement(keys_pressed, yellow): 
-    if keys_pressed[pygame.K_a] and yellow.x - VEL > 0: # LEFT
-        yellow.x -= VEL
-    if keys_pressed[pygame.K_d] and yellow.x + VEL + yellow.width < BORDER.x: # RIGHT
-        yellow.x += VEL
-    if keys_pressed[pygame.K_w] and yellow.y - VEL > 0: # UP
-        yellow.y -= VEL
-    if keys_pressed[pygame.K_s] and yellow.y + VEL + yellow.height < HEIGHT - 15: # DOWN
-        yellow.y += VEL
+def yellow_handle_movement(keys_pressed, yellow, speed):
+    if keys_pressed[pygame.K_a] and yellow.x - speed > 0: # LEFT
+        yellow.x -= speed
+    if keys_pressed[pygame.K_d] and yellow.x + speed + yellow.width < BORDER.x: # RIGHT
+        yellow.x += speed
+    if keys_pressed[pygame.K_w] and yellow.y - speed > 0: # UP
+        yellow.y -= speed
+    if keys_pressed[pygame.K_s] and yellow.y + speed + yellow.height < HEIGHT - 15: # DOWN
+        yellow.y += speed
 
 
-def red_handle_movement(keys_pressed, red):
-    if keys_pressed[pygame.K_LEFT] and red.x - VEL > BORDER.x + BORDER.width : # LEFT
-        red.x -= VEL
-    if keys_pressed[pygame.K_RIGHT] and red.x + VEL+ red.width < WIDTH: # RIGHT
-        red.x += VEL
-    if keys_pressed[pygame.K_UP] and red.y - VEL > 0: # UP
-        red.y -= VEL
-    if keys_pressed[pygame.K_DOWN] and red.y + VEL + red.height < HEIGHT - 15: # DOWN
-        red.y += VEL
-  
+def red_handle_movement(keys_pressed, red, speed):
+    if keys_pressed[pygame.K_LEFT] and red.x - speed > BORDER.x + BORDER.width : # LEFT
+        red.x -= speed
+    if keys_pressed[pygame.K_RIGHT] and red.x + speed + red.width < WIDTH: # RIGHT
+        red.x += speed
+    if keys_pressed[pygame.K_UP] and red.y - speed > 0: # UP
+        red.y -= speed
+    if keys_pressed[pygame.K_DOWN] and red.y + speed + red.height < HEIGHT - 15: # DOWN
+        red.y += speed
+
+
+def fire_laser(player, ship, bullets, flashes, effects, last_shot):
+    """Fire one laser, or a spaced pair while Double Shot is active."""
+    now = pygame.time.get_ticks()
+    rapid = effect_active(effects, player, "rapid")
+    cooldown = 110 if rapid else 250
+    bullet_limit = 6 if rapid else MAX_BULLETS
+    if now - last_shot[player] < cooldown or len(bullets) >= bullet_limit:
+        return
+
+    direction = 1 if player == "yellow" else -1
+    color = YELLOW if player == "yellow" else RED
+    offsets = (-9, 9) if effect_active(effects, player, "double") else (0,)
+    for offset in offsets:
+        if len(bullets) >= bullet_limit:
+            break
+        x = ship.right - 2 if direction == 1 else ship.left - 14
+        bullets.append({"rect": pygame.Rect(x, ship.centery - 3 + offset, 16, 6),
+                        "color": color, "direction": direction})
+    spawn_muzzle_flash(flashes, ship, color, direction)
+    LASER_SOUND.play()
+    last_shot[player] = now
 
 
 def handle_bullets(yellow_bullets, red_bullets, yellow, red, explosions):
@@ -271,19 +360,26 @@ def new_game():
         MAX_HEALTH,
         [],
         [],
+        [],
+        {"yellow": {}, "red": {}},
     )
 
 
 def main():
     pygame.mixer.music.load(BACKGROUND_MUSIC)
+    pygame.mixer.music.set_volume(0.35)
+    VICTORY_SOUND.set_volume(1.0)
     pygame.mixer.music.play(-1)
+    victory_channel = pygame.mixer.Channel(0)
     clock = pygame.time.Clock()
     run = True
     game_started = False
     winner_text = ""
     hit_player = None
     hit_feedback_until = 0
-    yellow, red, yellow_bullets, red_bullets, red_health, yellow_health, flashes, explosions = new_game()
+    yellow, red, yellow_bullets, red_bullets, red_health, yellow_health, flashes, explosions, powerups, effects = new_game()
+    last_shot = {"yellow": -1000, "red": -1000}
+    next_powerup_spawn = pygame.time.get_ticks() + POWERUP_SPAWN_MS
 
     while run:
         clock.tick(FPS)
@@ -294,10 +390,13 @@ def main():
 
             if event.type == pygame.KEYDOWN and winner_text:
                 if event.key == pygame.K_r:
-                    yellow, red, yellow_bullets, red_bullets, red_health, yellow_health, flashes, explosions = new_game()
+                    yellow, red, yellow_bullets, red_bullets, red_health, yellow_health, flashes, explosions, powerups, effects = new_game()
+                    last_shot = {"yellow": -1000, "red": -1000}
+                    next_powerup_spawn = pygame.time.get_ticks() + POWERUP_SPAWN_MS
                     winner_text = ""
                     hit_player = None
                     hit_feedback_until = 0
+                    pygame.mixer.music.play(-1)
                 elif event.key == pygame.K_ESCAPE:
                     run = False
 
@@ -309,27 +408,21 @@ def main():
 
             if event.type == pygame.KEYDOWN and game_started and not winner_text:
                 if event.key == pygame.K_LCTRL and len(yellow_bullets) < MAX_BULLETS:
-                    bullet = {"rect": pygame.Rect(yellow.right - 2, yellow.centery - 3, 16, 6),
-                              "color": YELLOW, "direction": 1}
-                    yellow_bullets.append(bullet)
-                    spawn_muzzle_flash(flashes, yellow, YELLOW, 1)
-                    LASER_SOUND.play()
+                    fire_laser("yellow", yellow, yellow_bullets, flashes, effects, last_shot)
 
                 if event.key == pygame.K_RCTRL and len(red_bullets) < MAX_BULLETS:
-                    bullet = {"rect": pygame.Rect(red.left - 14, red.centery - 3, 16, 6),
-                              "color": RED, "direction": -1}
-                    red_bullets.append(bullet)
-                    spawn_muzzle_flash(flashes, red, RED, -1)
-                    LASER_SOUND.play()
+                    fire_laser("red", red, red_bullets, flashes, effects, last_shot)
 
             if event.type == RED_HIT and game_started and not winner_text:
-                red_health -= 1
+                if not effect_active(effects, "red", "shield"):
+                    red_health -= 1
                 hit_player = "red"
                 hit_feedback_until = pygame.time.get_ticks() + 250
                 HIT_SOUND.play()
 
             if event.type == YELLOW_HIT and game_started and not winner_text:
-                yellow_health -= 1
+                if not effect_active(effects, "yellow", "shield"):
+                    yellow_health -= 1
                 hit_player = "yellow"
                 hit_feedback_until = pygame.time.get_ticks() + 250
                 HIT_SOUND.play()
@@ -340,18 +433,40 @@ def main():
 
         if not winner_text and red_health <= 0:
             winner_text = "Yellow wins!"
-            VICTORY_SOUND.play()
+            pygame.mixer.music.fadeout(250)
+            victory_channel.play(VICTORY_SOUND)
         elif not winner_text and yellow_health <= 0:
             winner_text = "Red wins!"
-            VICTORY_SOUND.play()
+            pygame.mixer.music.fadeout(250)
+            victory_channel.play(VICTORY_SOUND)
 
         if winner_text:
             draw_winner(winner_text)
             continue
 
         keys_pressed = pygame.key.get_pressed()
-        yellow_handle_movement(keys_pressed, yellow)
-        red_handle_movement(keys_pressed, red)
+        yellow_handle_movement(keys_pressed, yellow,
+                               VEL + 3 if effect_active(effects, "yellow", "speed") else VEL)
+        red_handle_movement(keys_pressed, red,
+                            VEL + 3 if effect_active(effects, "red", "speed") else VEL)
+
+        # Rapid Fire works while the player holds their existing fire key.
+        if effect_active(effects, "yellow", "rapid") and keys_pressed[pygame.K_LCTRL]:
+            fire_laser("yellow", yellow, yellow_bullets, flashes, effects, last_shot)
+        if effect_active(effects, "red", "rapid") and keys_pressed[pygame.K_RCTRL]:
+            fire_laser("red", red, red_bullets, flashes, effects, last_shot)
+
+        if pygame.time.get_ticks() >= next_powerup_spawn:
+            spawn_powerup(powerups)
+            next_powerup_spawn = pygame.time.get_ticks() + POWERUP_SPAWN_MS
+
+        for pickup in powerups[:]:
+            if yellow.colliderect(pickup["rect"]):
+                yellow_health = activate_powerup(pickup["kind"], "yellow", yellow_health, effects)
+                powerups.remove(pickup)
+            elif red.colliderect(pickup["rect"]):
+                red_health = activate_powerup(pickup["kind"], "red", red_health, effects)
+                powerups.remove(pickup)
 
         handle_bullets(yellow_bullets, red_bullets, yellow, red, explosions)
 
@@ -365,7 +480,9 @@ def main():
             hit_player,
             hit_feedback_until,
             flashes,
-            explosions
+            explosions,
+            powerups,
+            effects
         )
 
 
