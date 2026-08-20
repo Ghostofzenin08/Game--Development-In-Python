@@ -7,6 +7,7 @@ pygame.font.init()
 
 
 ASSET_DIR = os.path.join(os.path.dirname(__file__), 'assets', 'images')
+SOUND_DIR = os.path.join(os.path.dirname(__file__), 'assets', 'sounds')
 
 
 WIDTH, HEIGHT = 900, 500
@@ -53,6 +54,11 @@ RED_SPACESHIP_IMAGE = pygame.image.load(
 RED_SPACESHIP_IMAGE = pygame.transform.rotate(pygame.transform.scale(RED_SPACESHIP_IMAGE, (SPACESHIP_WIDTH, SPACESHIP_HEIGHT)), 270)
 
 SPACE = pygame.transform.scale(pygame.image.load(os.path.join(ASSET_DIR, 'background_GS.png')), (WIDTH, HEIGHT))
+
+LASER_SOUND = pygame.mixer.Sound(os.path.join(SOUND_DIR, 'laser_GS.mp3'))
+HIT_SOUND = pygame.mixer.Sound(os.path.join(SOUND_DIR, 'damage_GS.mp3'))
+VICTORY_SOUND = pygame.mixer.Sound(os.path.join(SOUND_DIR, 'victory_GS.mp3'))
+BACKGROUND_MUSIC = os.path.join(SOUND_DIR, 'background_GS.mp3')
 
 
 def make_laser_sprite(color, direction):
@@ -269,6 +275,8 @@ def new_game():
 
 
 def main():
+    pygame.mixer.music.load(BACKGROUND_MUSIC)
+    pygame.mixer.music.play(-1)
     clock = pygame.time.Clock()
     run = True
     game_started = False
@@ -305,31 +313,37 @@ def main():
                               "color": YELLOW, "direction": 1}
                     yellow_bullets.append(bullet)
                     spawn_muzzle_flash(flashes, yellow, YELLOW, 1)
+                    LASER_SOUND.play()
 
                 if event.key == pygame.K_RCTRL and len(red_bullets) < MAX_BULLETS:
                     bullet = {"rect": pygame.Rect(red.left - 14, red.centery - 3, 16, 6),
                               "color": RED, "direction": -1}
                     red_bullets.append(bullet)
                     spawn_muzzle_flash(flashes, red, RED, -1)
+                    LASER_SOUND.play()
 
             if event.type == RED_HIT and game_started and not winner_text:
                 red_health -= 1
                 hit_player = "red"
                 hit_feedback_until = pygame.time.get_ticks() + 250
+                HIT_SOUND.play()
 
             if event.type == YELLOW_HIT and game_started and not winner_text:
                 yellow_health -= 1
                 hit_player = "yellow"
                 hit_feedback_until = pygame.time.get_ticks() + 250
+                HIT_SOUND.play()
 
         if not game_started:
             draw_winner(winner_text) if winner_text else draw_menu()
             continue
 
-        if red_health <= 0:
+        if not winner_text and red_health <= 0:
             winner_text = "Yellow wins!"
-        elif yellow_health <= 0:
+            VICTORY_SOUND.play()
+        elif not winner_text and yellow_health <= 0:
             winner_text = "Red wins!"
+            VICTORY_SOUND.play()
 
         if winner_text:
             draw_winner(winner_text)
@@ -362,9 +376,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-
-
-
-
