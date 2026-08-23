@@ -15,6 +15,7 @@ This repository is a curated portfolio of 2D arcade games, real-time physics sim
 
 
 ![Preview](/src/Galaxy_shooters/assets/images/image.png)
+![Preview](/src/Pong/image.png)
 
 ## 📑 Table of Contents
 
