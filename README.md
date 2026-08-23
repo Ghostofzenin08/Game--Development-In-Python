@@ -7,9 +7,14 @@
 
 Welcome to the **Game Development in Python** repository! 🚀
 
+
+
 This repository is a curated portfolio of 2D arcade games, real-time physics simulations, reactive AI systems, procedural audio/visual effects, and modular object-oriented game architectures engineered using **Python** and **Pygame**.
 
 ---
+
+
+![Preview](/src/Galaxy_shooters/assets/images/image.png)
 
 ## 📑 Table of Contents
 
