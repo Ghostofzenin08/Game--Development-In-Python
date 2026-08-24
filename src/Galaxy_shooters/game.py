@@ -574,7 +574,7 @@ class GalaxyShootersGame:
         pygame.mixer.init()
         self.is_fullscreen = True
         try:
-            self.window = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN | pygame.SCALED | pygame.RESIZABLE)
+            self.window = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN | pygame.SCALED)
         except Exception:
             try:
                 self.window = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN | pygame.SCALED)
@@ -612,13 +612,13 @@ class GalaxyShootersGame:
         yellow_raw = pygame.image.load(os.path.join(ASSET_DIR, "yellow_spaceship.png"))
         self.yellow_img = pygame.transform.rotate(
             pygame.transform.scale(yellow_raw, (SPACESHIP_HEIGHT, SPACESHIP_WIDTH)),
-            270,
+            90,
         )
 
         red_raw = pygame.image.load(os.path.join(ASSET_DIR, "red_spaceship.png"))
         self.red_img = pygame.transform.rotate(
             pygame.transform.scale(red_raw, (SPACESHIP_HEIGHT, SPACESHIP_WIDTH)),
-            90,
+            270,
         )
 
         self.yellow_laser_sprite = LaserSpriteFactory.create(YELLOW, 1)
@@ -702,7 +702,7 @@ class GalaxyShootersGame:
         self.is_fullscreen = not self.is_fullscreen
         try:
             if self.is_fullscreen:
-                self.window = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN | pygame.SCALED | pygame.RESIZABLE)
+                self.window = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN | pygame.SCALED)
             else:
                 self.window = pygame.display.set_mode((WIDTH, HEIGHT), pygame.SCALED | pygame.RESIZABLE)
         except Exception:
