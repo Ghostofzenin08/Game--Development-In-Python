@@ -1,9 +1,17 @@
-"""Galaxy Shooters: Space Battle Arcade Game (Refactored with OOP Classes)."""
-
+import ctypes
 import json
 import os
 import random
 import pygame
+
+try:
+    # Set Windows DPI awareness to prevent fullscreen clipping/stretching by OS scaling
+    ctypes.windll.shcore.SetProcessDpiAwareness(2)
+except Exception:
+    try:
+        ctypes.windll.user32.SetProcessDPIAware()
+    except Exception:
+        pass
 
 
 # =====================================================================
@@ -1101,13 +1109,14 @@ class GalaxyShootersGame:
         bar_x = x - HEALTH_BAR_WIDTH if align_right else x
         background = pygame.Rect(bar_x, y, HEALTH_BAR_WIDTH, HEALTH_BAR_HEIGHT)
         fill = pygame.Rect(bar_x, y, int(HEALTH_BAR_WIDTH * health_ratio), HEALTH_BAR_HEIGHT)
-        pygame.draw.rect(surface, BLACK, background)
-        pygame.draw.rect(surface, state_color, fill)
-        pygame.draw.rect(surface, WHITE, background, 2)
+        pygame.draw.rect(surface, BLACK, background, border_radius=3)
+        pygame.draw.rect(surface, state_color, fill, border_radius=3)
+        pygame.draw.rect(surface, WHITE, background, 2, border_radius=3)
 
         health_text = self.health_small_font.render(f"{max(0, health)}/{max_health}", True, WHITE)
         text_x = bar_x + HEALTH_BAR_WIDTH - health_text.get_width() - 2 if align_right else bar_x + 2
-        surface.blit(health_text, (text_x, y - health_text.get_height() - 2))
+        text_y = max(1, y - health_text.get_height() + 2)
+        surface.blit(health_text, (text_x, text_y))
 
     def draw_hud(self, surface: pygame.Surface, now: int):
         # Draw translucent dark top HUD bar background
@@ -1116,8 +1125,8 @@ class GalaxyShootersGame:
         surface.blit(hud_bg, (0, 0))
 
         # Health bars
-        self.draw_health_bar(surface, 15, 14, self.yellow.health, self.yellow.max_health, YELLOW)
-        self.draw_health_bar(surface, WIDTH - 140, 14, self.red.health, self.red.max_health, RED, align_right=True)
+        self.draw_health_bar(surface, 15, 20, self.yellow.health, self.yellow.max_health, YELLOW)
+        self.draw_health_bar(surface, WIDTH - 140, 20, self.red.health, self.red.max_health, RED, align_right=True)
 
         # Level Title & Score HUD
         if self.game_mode == "two":
@@ -1125,21 +1134,21 @@ class GalaxyShootersGame:
         else:
             lvl_title = f"UNLIMITED WAVE {self.wave_count} - {self.difficulty.upper()}"
         lvl_surface = self.health_small_font.render(lvl_title, True, (255, 215, 0))
-        surface.blit(lvl_surface, (WIDTH // 2 - lvl_surface.get_width() // 2, 4))
+        surface.blit(lvl_surface, (WIDTH // 2 - lvl_surface.get_width() // 2, 6))
 
         score_surface = self.health_small_font.render(f"SCORE: {self.score}   HIGH SCORE: {self.high_score}", True, WHITE)
-        surface.blit(score_surface, (WIDTH // 2 - score_surface.get_width() // 2, 32))
+        surface.blit(score_surface, (WIDTH // 2 - score_surface.get_width() // 2, 30))
 
         # Active powerup status texts
         yellow_active = self.yellow.get_active_labels(now)
         if yellow_active:
             text = self.powerup_font.render(" | ".join(yellow_active), True, WHITE)
-            surface.blit(text, (15, 36))
+            surface.blit(text, (15, 38))
 
         red_active = self.red.get_active_labels(now)
         if red_active:
             text = self.powerup_font.render(" | ".join(red_active), True, WHITE)
-            surface.blit(text, (WIDTH - 140 - text.get_width(), 36))
+            surface.blit(text, (WIDTH - 140 - text.get_width(), 38))
 
         # In-Game Navigation & Pause Button
         mx, my = pygame.mouse.get_pos()
