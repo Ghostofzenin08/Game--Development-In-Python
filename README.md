@@ -462,7 +462,7 @@ https://game-development-in-python.vercel.app/
 The website acts as the presentation and documentation layer for the game-development portfolio, while the GitHub repository contains the source code and assets.
 
 **Thanks to..**
-# Parth - https://github.com/parthongit89
+ Parth - https://github.com/parthongit89
 
 ---
 
