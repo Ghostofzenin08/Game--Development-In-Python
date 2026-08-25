@@ -1,293 +1,537 @@
 # 🎮 Game Development in Python
 
-[![Python Version](https://img.shields.io/badge/Python-3.8%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
-[![Pygame](https://img.shields.io/badge/Pygame-2.5.0%2B-green?style=for-the-badge&logo=python&logoColor=white)](https://www.pygame.org/)
-[![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey?style=for-the-badge)](https://github.com/Ghostofzenin08/Game--Development-In-Python)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
+> A growing Python/Pygame game-development portfolio focused on arcade gameplay, real-time physics, AI systems, procedural effects, modular architecture, and interactive game design.
 
-Welcome to the **Game Development in Python** repository! 🚀
-
-
-
-This repository is a curated portfolio of 2D arcade games, real-time physics simulations, reactive AI systems, procedural audio/visual effects, and modular object-oriented game architectures engineered using **Python** and **Pygame**.
+[![Python](https://img.shields.io/badge/Python-3.8%2B-blue?logo=python)](https://www.python.org/)
+[![Pygame](https://img.shields.io/badge/Pygame-2.5%2B-green)](https://www.pygame.org/)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![GitHub](https://img.shields.io/badge/GitHub-Repository-black?logo=github)](https://github.com/Ghostofzenin08/Game--Development-In-Python)
 
 ---
 
+## 🌌 Project Overview
 
-![Preview](/src/Galaxy_shooters/assets/images/image.png)
-![Preview](/src/Pong/image.png)
+**Game Development in Python** is my personal game-development portfolio built with **Python and Pygame**.
 
-## 📑 Table of Contents
+The repository documents my progression from basic game programming toward more structured game-engineering concepts, including:
 
-- [🎮 Featured Games Overview](#-featured-games-overview)
-- [🚀 Galaxy Shooters](#-galaxy-shooters)
-  - [Features](#-features)
-  - [Power-Up System](#-power-up-system)
-  - [Controls Reference](#-controls-reference)
-  - [Architecture](#-architecture)
-- [🏓 Enhanced Pong](#-enhanced-pong)
-  - [Features](#-features-1)
-  - [Procedural Audio Engine](#-procedural-audio-engine)
-  - [Controls Reference](#-controls-reference-1)
-  - [Modular Structure](#-modular-structure)
-- [📂 Repository Structure](#-repository-structure)
-- [⚙️ Installation & Setup](#️-installation--setup)
-- [🕹️ Launching the Games](#️-launching-the-games)
-- [🏗️ Software Architecture & Design Principles](#️-software-architecture--design-principles)
-- [📈 Roadmap & Future Plans](#-roadmap--future-plans)
-- [👨‍💻 Author & Connect](#-author--connect)
-- [📜 License](#-license)
+- 🎮 Real-time 2D gameplay
+- 🧠 Reactive AI systems
+- ⚙️ Object-Oriented Programming
+- 🏗️ Modular game architecture
+- 💥 Collision detection and physics
+- ✨ Procedural visual effects
+- 🔊 Procedural audio synthesis
+- 🕹️ Multiple game modes
+- ⚡ Power-up systems
+- 🎯 Game-state management
+- 🧪 Testable and maintainable game components
+
+The project is continuously evolving as new mechanics, systems, and games are added.
 
 ---
 
-## 🎮 Featured Games Overview
+## 🚀 Featured Games
 
-| Game | Genre / Theme | Modes | Highlights |
-| :--- | :--- | :--- | :--- |
-| **[🚀 Galaxy Shooters](#-galaxy-shooters)** | Fast-Paced Space Combat | • Player vs AI<br>• 2-Player Local PvP | 5 dynamic power-ups, reactive laser-dodging AI, glowing laser shaders, muzzle flash, explosion shockwaves, audio manager |
-| **[🏓 Enhanced Pong](#-enhanced-pong)** | Enhanced Classic Arcade | • Single Player vs AI<br>• 2-Player Local PvP | 100% procedural sine-wave audio synthesis, ball trail blur, spin-deflection physics, dynamic power-ups, match system |
+| Game | Genre | Main Concepts |
+|---|---|---|
+| 🚀 **Galaxy Shooters** | 2D Space Combat | Reactive AI, power-ups, projectiles, shields, VFX, audio |
+| 🏓 **Enhanced Pong** | Arcade / Sports | Physics, AI, procedural audio, power-ups, game states |
 
 ---
 
-## 🚀 Galaxy Shooters
+# 🚀 Galaxy Shooters
 
-**Galaxy Shooters** is a high-action 2D space duel game where two starfighters battle across territorial airspace with laser cannons, energy shields, and tactical drops.
+**Galaxy Shooters** is a fast-paced 2D space combat game featuring starfighters, laser projectiles, reactive AI, health and shield mechanics, power-ups, visual effects, and a dedicated audio system.
+
+The game supports both **Player vs AI** and **local 2-player** gameplay.
 
 ### 🌟 Features
 
-- **🤖 Intelligent Reactive AI**:
-  - Automatically tracks opponent vertical coordinates.
-  - Detects incoming enemy lasers and computes evasion trajectories to dodge danger.
-  - Scans for battlefield power-ups and moves to collect them.
-  - Automatically calculates optimal firing intervals.
-- **🛡️ Dynamic Health & Shield System**:
-  - Live animated health bars for both combatants.
-  - Temporary energy barrier absorbs incoming projectile damage.
-- **✨ Procedural Graphics & Shader Effects**:
-  - Multi-layered glowing laser surfaces rendered in real time.
-  - Directional muzzle flashes when blasters fire.
-  - Expanding shockwave and particle blast effects on projectile impact.
-- **🎵 Full Audio System**: Dedicated `AudioManager` handling background soundtrack, laser fire, impact explosions, and victory jingles.
+#### 🤖 Reactive AI
 
-### ⚡ Power-Up System
+The AI opponent can:
 
-Power-ups spawn periodically on the battlefield with countdown lifetimes:
+- Track the player's position
+- React to incoming projectiles
+- Attempt projectile avoidance
+- Search for available power-ups
+- Move toward useful power-ups
+- Manage its firing behaviour
 
-| Icon | Name | Color | Tactical Effect |
-| :---: | :--- | :--- | :--- |
-| ⚡ | **RAPID** | Cyan | Increases blaster fire rate and doubles max on-screen projectiles |
-| 🛡️ | **SHIELD** | Blue | Deploys a protective force field absorbing incoming hits |
-| ❤️ | **+HEALTH** | Green | Instantly repairs hull damage and restores lost health points |
-| ✨ | **DOUBLE** | Pink | Upgrades weapon cannons to fire two synchronized laser beams |
-| 💨 | **SPEED** | Orange | Increases thruster propulsion and movement speed |
+#### 🛡️ Health & Shield System
 
-### 🎮 Controls Reference
+- Dynamic health bars
+- Damage detection
+- Temporary protective shields
+- Health restoration power-ups
 
-| Action | Player 1 (Yellow Ship) | Player 2 (Red Ship) | Menu Controls |
-| :--- | :---: | :---: | :---: |
-| **Move Up / Down** | `W` / `S` | `↑` / `↓` | `1` : Mode: Player vs AI |
-| **Move Left / Right** | `A` / `D` | `←` / `→` | `2` : Mode: Two Players |
-| **Fire Blaster** | `Left Ctrl` | `Right Ctrl` | `Enter` / `Space` : Start Game |
-| **Game Over State** | — | — | `R` : Rematch \| `Esc` : Return to Menu |
+#### ✨ Visual Effects
 
-### 🏛️ Architecture
+The game includes procedural and runtime-generated effects such as:
+
+- Glowing laser projectiles
+- Muzzle flashes
+- Explosion effects
+- Shockwaves
+- Particle-style impact effects
+
+#### ⚡ Power-Up System
+
+| Power-Up | Effect |
+|---|---|
+| ⚡ **RAPID** | Increases firing rate |
+| 🛡️ **SHIELD** | Absorbs incoming damage |
+| ❤️ **HEALTH** | Restores health |
+| ✨ **DOUBLE** | Enables dual laser fire |
+| 💨 **SPEED** | Increases movement speed |
+
+### 🎮 Controls
+
+| Action | Player 1 | Player 2 |
+|---|---|---|
+| Move Up | `W` | `↑` |
+| Move Down | `S` | `↓` |
+| Move Left | `A` | `←` |
+| Move Right | `D` | `→` |
+| Fire | `Left Ctrl` | `Right Ctrl` |
+
+### Menu Controls
+
+| Key | Action |
+|---|---|
+| `1` | Player vs AI |
+| `2` | Local 2-Player |
+| `Enter` / `Space` | Start |
+| `R` | Rematch |
+| `Esc` | Return to menu |
+
+### 🏗️ Architecture
 
 ```text
-GalaxyShootersGame (Main Controller & Game Loop)
+GalaxyShootersGame
 │
-├── Spaceship (Base Entity)
-│   ├── Player (Human Input Handler)
-│   └── AI (State Evaluator & Auto-pilot)
+├── Spaceship
+│   ├── Player
+│   └── AI
 │
-├── Laser (Projectile Entity)
-├── PowerUp (Spawn & Buff Lifecycles)
-├── LaserSpriteFactory (In-Memory Glow Renderer)
-├── MuzzleFlash & Explosion (Particle VFX)
-└── AudioManager (Sound FX & Background Music)
+├── Laser
+├── PowerUp
+├── LaserSpriteFactory
+├── MuzzleFlash
+├── Explosion
+└── AudioManager
 ```
+
+This structure separates gameplay entities, AI behaviour, effects, and audio responsibilities instead of putting the entire game into one large script.
 
 ---
 
-## 🏓 Enhanced Pong
+# 🏓 Enhanced Pong
 
-An engineered evolution of the timeless Pong arcade game rebuilt from the ground up with modular architecture, procedural sound synthesis, spin physics, and power-up modifiers.
+**Enhanced Pong** is an expanded version of the classic Pong game rebuilt with modular architecture and additional gameplay systems.
+
+The project focuses heavily on physics, procedural audio, game-state management, and reusable components.
 
 ### 🌟 Features
 
-- **🔊 Pure Procedural Audio**: Generates all game sound effects dynamically at runtime without external audio assets.
-- **🌀 Dynamic Spin & Deflection Physics**: Ball exit angle and vertical velocity dynamically scale based on impact point on the paddle and paddle velocity.
-- **💨 Motion Blur & Trail Visuals**: Smooth queue-based alpha trail tracking the ball trajectory.
-- **⚡ Interactive Power-Ups**:
-  - `+` **Grow**: Extends paddle height by 1.5x for 6 seconds.
-  - `S` **Slow**: Reduces ball speed back to baseline to recover control during fast rallies.
-- **🏆 Complete Match State Machine**:
-  - Start screen with mode selection.
-  - 3-second serve countdowns between points.
-  - Scoreboard tracking points to a winning score of 5.
-  - Victory celebration screen with restart and quit keys.
+- 🧠 Single-player AI mode
+- 👥 Local 2-player mode
+- 🌀 Dynamic ball spin
+- 💨 Ball trail / motion effect
+- ⚡ Gameplay power-ups
+- 🏆 Match-based scoring
+- ⏱️ Serve countdown
+- 🔊 Runtime-generated sound effects
+- 🎯 Modular entity architecture
+- 🎮 Complete game-state flow
 
-### 🔊 Procedural Audio Engine
+### ⚡ Power-Ups
 
-Unlike standard implementations that rely on external `.wav` or `.mp3` files, Enhanced Pong utilizes an internal procedural sound synthesizer (`audio.py`):
+| Power-Up | Effect |
+|---|---|
+| `+` Grow | Increases paddle height |
+| `S` Slow | Reduces ball speed |
 
-```python
-# Procedural sine wave sound generation at runtime
-rate = 22050
-data = array("h", (
-    int(9000 * math.sin(2 * math.pi * frequency * i / rate))
-    for i in range(int(rate * duration))
-))
-pygame.mixer.Sound(buffer=data)
-```
+### 🔊 Procedural Audio
 
-Generated sound profiles:
-- **Paddle Hit:** High crisp ping (620 Hz, 70 ms)
-- **Wall Bounce:** Deep bounce thud (300 Hz, 50 ms)
-- **Score Point:** Low buzzer tone (180 Hz, 180 ms)
-- **Power-Up Grab:** High energizing chime (900 Hz, 120 ms)
+Enhanced Pong does not depend on external sound files for its basic game effects.
 
-### 🎮 Controls Reference
+The project generates sound waves at runtime using mathematical sine-wave synthesis.
 
-| Action | Left Player (P1) | Right Player (P2 / AI) | System Navigation |
-| :--- | :---: | :---: | :---: |
-| **Move Paddle** | `W` (Up) / `S` (Down) | `↑` (Up) / `↓` (Down) | `1` : Single Player (vs AI) |
-| **Select Mode** | — | — | `2` : Two Players Local |
-| **Start / Serve** | — | — | `Space` / `Enter` : Start Game |
-| **End of Match** | — | — | `R` : Play Again \| `Esc` : Exit |
+The audio system produces effects for:
+
+- Paddle hits
+- Wall collisions
+- Scoring
+- Power-up collection
 
 ### 🧩 Modular Structure
 
-Pong is decoupled into independent, testable modules:
-- `config.py` — Window dimensions, speeds, colors, and balance constants.
-- `entities.py` — `Paddle`, `Ball`, `PowerUp`, and `Flash` data models.
-- `audio.py` — Synthesized sound generator.
-- `game.py` — `PongGame` state machine, collision coordinator, and renderer.
-- `pong.py` / `Solution_main.py` — Executable entry points.
+```text
+Pong
+│
+├── config.py
+│   └── Configuration and gameplay constants
+│
+├── entities.py
+│   └── Paddle, Ball, PowerUp and Flash
+│
+├── audio.py
+│   └── Procedural sound synthesis
+│
+├── game.py
+│   └── Game controller and state machine
+│
+├── pong.py
+│   └── Main entry point
+│
+└── Solution_main.py
+    └── Alternative launcher
+```
 
 ---
 
-## 📂 Repository Structure
+# 🌐 Project Website
+
+The project also has a dedicated website containing information about the games, documentation, contribution information, and project resources.
+
+### 🎮 Game Development Website
+
+**https://game-development-in-python.vercel.app/**
+
+The website currently showcases **Galaxy Shooters**, including game visuals, technical information, developer information, contribution instructions, and desktop installation instructions.
+
+> 🌐 **Browser version:** The website currently lists the browser/WebAssembly edition as **coming soon**. The playable desktop edition is available through the Python/Pygame project.
+
+---
+
+# 📂 Repository Structure
 
 ```text
 Game--Development-In-Python/
 │
-├── .gitignore                              # Git exclusion rules
-├── LICENSE                                 # MIT License
-├── README.md                               # Root repository documentation
+├── .github/
+│   └── workflows/
 │
-└── src/
-    ├── Galaxy_shooters/                    # 🚀 Galaxy Shooters Project
-    │   ├── assets/
-    │   │   ├── images/                     # Sprite textures & backgrounds
-    │   │   │   ├── background_GS.png
-    │   │   │   ├── red_spaceship.png
-    │   │   │   └── yellow_spaceship.png
-    │   │   └── sounds/                     # Game audio assets
-    │   │       ├── background_GS.mp3
-    │   │       ├── damage_GS.mp3
-    │   │       ├── laser_GS.mp3
-    │   │       └── victory_GS.mp3
-    │   ├── game.py                         # Galaxy Shooters main application
-    │   ├── README_.md                      # Dedicated Galaxy Shooters documentation
-    │   └── requirements.txt                # Galaxy Shooters dependencies
-    │
-    └── Pong/                               # 🏓 Enhanced Pong Project
-        ├── audio.py                        # Procedural sound synthesis engine
-        ├── config.py                       # Balance parameters & display settings
-        ├── entities.py                     # Decoupled entity classes & physics
-        ├── game.py                         # Game controller & state machine
-        ├── pong.py                         # Direct entry-point script
-        ├── Solution_main.py                # Main launcher wrapper
-        ├── README.md                       # Dedicated Pong documentation
-        └── requirements.txt                # Pong dependencies
+├── .vscode/
+│
+├── src/
+│   │
+│   ├── Galaxy_shooters/
+│   │   ├── assets/
+│   │   │   ├── images/
+│   │   │   │   ├── background_GS.png
+│   │   │   │   ├── red_spaceship.png
+│   │   │   │   └── yellow_spaceship.png
+│   │   │   │
+│   │   │   └── sounds/
+│   │   │       ├── background_GS.mp3
+│   │   │       ├── damage_GS.mp3
+│   │   │       ├── laser_GS.mp3
+│   │   │       └── victory_GS.mp3
+│   │   │
+│   │   ├── game.py
+│   │   ├── README_.md
+│   │   └── requirements.txt
+│   │
+│   └── Pong/
+│       ├── audio.py
+│       ├── config.py
+│       ├── entities.py
+│       ├── game.py
+│       ├── pong.py
+│       ├── Solution_main.py
+│       ├── README.md
+│       └── requirements.txt
+│
+├── tests/
+├── .gitignore
+├── LICENSE
+└── README.md
 ```
 
 ---
 
-## ⚙️ Installation & Setup
+# ⚙️ Installation
 
-### 1. Prerequisites
-- **Python 3.8 or higher** installed on your system. Verify with:
-  ```bash
-  python --version
-  ```
+## 1. Clone the Repository
 
-### 2. Clone the Repository
 ```bash
 git clone https://github.com/Ghostofzenin08/Game--Development-In-Python.git
+
 cd Game--Development-In-Python
 ```
 
-### 3. Create a Virtual Environment (Recommended)
+## 2. Create a Virtual Environment
 
-**Windows (PowerShell / Command Prompt):**
+### Windows
+
 ```bash
 python -m venv venv
 venv\Scripts\activate
 ```
 
-**macOS / Linux:**
+### macOS / Linux
+
 ```bash
 python3 -m venv venv
 source venv/bin/activate
 ```
 
-### 4. Install Dependencies
-```bash
-pip install pygame>=2.5.0
-```
-*Or install via project requirements files:*
+## 3. Install Dependencies
+
+For Galaxy Shooters:
+
 ```bash
 pip install -r src/Galaxy_shooters/requirements.txt
 ```
 
+For Pong:
+
+```bash
+pip install -r src/Pong/requirements.txt
+```
+
+Or install Pygame directly:
+
+```bash
+pip install pygame>=2.5.0
+```
+
 ---
 
-## 🕹️ Launching the Games
+# 🕹️ Running the Games
 
-Run each game directly from the repository root:
+## 🚀 Galaxy Shooters
 
-### 🚀 Play Galaxy Shooters
+From the repository root:
+
 ```bash
 python src/Galaxy_shooters/game.py
 ```
 
-### 🏓 Play Enhanced Pong
+## 🏓 Enhanced Pong
+
 ```bash
 python src/Pong/pong.py
 ```
-*(Alternative launcher: `python src/Pong/Solution_main.py`)*
+
+Alternative launcher:
+
+```bash
+python src/Pong/Solution_main.py
+```
 
 ---
 
-## 🏗️ Software Architecture & Design Principles
+# 🧠 Technical Concepts
 
-- **Object-Oriented Programming (OOP)**: Clear separation of entity attributes, behavior methods, and rendering logic.
-- **Finite State Machines (FSM)**: Structured lifecycle management (`start` ➔ `countdown` ➔ `playing` ➔ `game_over`).
-- **Procedural Generation**: In-memory visual asset synthesis using `pygame.SRCALPHA` and procedural mathematical audio synthesis via sine wave byte buffers.
-- **Deterministic 60 FPS Game Loop**: Consistent collision detection, physics updates, and smooth frame rendering.
-- **Reactive AI Agents**: Real-time position tracking, projectile trajectory avoidance, and autonomous decision loops.
+This repository is being developed around several important game-programming and software-engineering concepts.
+
+### Object-Oriented Programming
+
+Game entities are separated into classes with their own data and behaviour.
+
+### Finite State Machines
+
+Games use structured states such as:
+
+```text
+Menu
+  ↓
+Start
+  ↓
+Countdown
+  ↓
+Playing
+  ↓
+Game Over
+  ↓
+Rematch / Menu
+```
+
+### Real-Time Game Loops
+
+The games target a consistent **60 FPS** update and rendering cycle.
+
+### Collision Detection
+
+Gameplay systems handle interactions between:
+
+- Players
+- Projectiles
+- Walls
+- Power-ups
+- Game boundaries
+
+### Reactive AI
+
+Galaxy Shooters includes AI logic that reacts to player movement, projectiles, and available power-ups.
+
+### Procedural Generation
+
+Several visual and audio effects are generated programmatically instead of relying entirely on pre-made assets.
+
+### Modular Architecture
+
+The projects are progressively being divided into smaller components to improve:
+
+- Maintainability
+- Reusability
+- Debugging
+- Testing
+- Future expansion
 
 ---
 
-## 📈 Roadmap & Future Plans
+# 🧪 Testing
 
-- [ ] Add interactive settings menu (volume sliders, key remapping) to Galaxy Shooters.
-- [ ] Multi-level AI difficulty settings (Easy, Medium, Hard, Unbeatable).
-- [ ] Additional power-up types (Laser Turrets, EMP Blasts, Multi-Ball).
-- [ ] Network multiplayer prototype using Python Sockets / UDP.
-- [ ] New upcoming game: 2D Top-Down Roguelike Dungeon Crawler.
+The repository also includes a `tests/` directory for automated testing and future test coverage.
 
----
+As the projects become more complex, testing will be expanded to cover:
 
-## 👨‍💻 Author & Connect
-
-**Harshal**
-- **GitHub:** [@Ghostofzenin08](https://github.com/Ghostofzenin08)
-- **Portfolio Goal:** Mastering Python software architecture, real-time algorithms, and creative game engineering.
+- Game entities
+- Physics calculations
+- Collision behaviour
+- Power-up logic
+- Game-state transitions
+- Utility functions
 
 ---
 
-## 📜 License
+# 🛠️ Development Roadmap
 
-This project is open source and available under the [MIT License](LICENSE).
+The repository is still under active development.
+
+### Planned Improvements
+
+- [ ] Settings menu
+- [ ] Volume controls
+- [ ] Key remapping
+- [ ] Multiple AI difficulty levels
+- [ ] Additional power-ups
+- [ ] Improved enemy behaviour
+- [ ] More advanced VFX
+- [ ] Network multiplayer experiments
+- [ ] Additional arcade games
+- [ ] 2D top-down roguelike project
+- [ ] Improved automated test coverage
+- [ ] Browser/WebAssembly version of Galaxy Shooters
+
+---
+
+# 🎯 Learning Goals
+
+This repository is more than a collection of games. It is also a learning journey toward professional software and game development.
+
+The main goals are to improve my understanding of:
+
+```text
+Python
+   ↓
+Object-Oriented Programming
+   ↓
+Game Loops & Real-Time Systems
+   ↓
+Physics & Collision Detection
+   ↓
+AI Behaviour
+   ↓
+Procedural Graphics & Audio
+   ↓
+Software Architecture
+   ↓
+Testing
+   ↓
+Deployment
+   ↓
+Advanced Game Development
+```
+
+---
+
+# 🌐 Deployment
+
+The project has a dedicated Vercel-hosted website:
+
+**Game Development in Python**
+
+https://game-development-in-python.vercel.app/
+
+The website acts as the presentation and documentation layer for the game-development portfolio, while the GitHub repository contains the source code and assets.
+
+**Thanks to..**
+# Parth - https://github.com/parthongit89
+
+---
+
+# 🤝 Contributing
+
+Contributions and suggestions are welcome.
+
+### Development workflow
+
+```bash
+git checkout -b feature/your-feature-name
+```
+
+Make your changes, test them locally, and submit a pull request.
+
+Possible contribution areas include:
+
+- New gameplay mechanics
+- AI improvements
+- New power-ups
+- Physics improvements
+- Visual effects
+- Audio systems
+- New games
+- Testing
+- Documentation
+
+---
+
+# 👨‍💻 Developer
+
+### Harshal 
+
+**GitHub:** [@Ghostofzenin08](https://github.com/Ghostofzenin08)
+
+**Project Website:** https://game-development-in-python.vercel.app/
+
+Interested in:
+
+- Python
+- Game Development
+- Pygame
+- Software Architecture
+- Real-Time Systems
+- AI Behaviour
+- Physics Simulation
+- Procedural Graphics
+- Game Engineering
+
+---
+
+# 📜 License
+
+This project is licensed under the **MIT License**.
+
+See [LICENSE](LICENSE) for more information.
+
+---
+
+## ⭐ Support the Project
+
+If you find this project interesting:
+
+- ⭐ Star the repository
+- 🍴 Fork the project
+- 🐛 Report issues
+- 💡 Suggest new features
+- 🔧 Contribute improvements
+
+---
+
+> **Built with Python + Pygame — one game at a time. 🎮🚀**
